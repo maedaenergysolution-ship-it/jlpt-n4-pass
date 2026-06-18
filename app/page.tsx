@@ -483,28 +483,49 @@ export default function Home() {
                 )
               })}
             </div>
+         {Math.round((correctCount / totalQuestions) * 100) === 100 && (
+  <div
+    style={{
+      marginTop: 20,
+      padding: 18,
+      borderRadius: 16,
+      background: '#DCFCE7',
+      color: '#166534',
+      textAlign: 'center',
+      fontSize: 18,
+      fontWeight: 'bold',
+    }}
+  >
+    🏆 Excelente!
+    <br />
+    Você acertou 100% do simulado.
+    <br />
+    Continue treinando para manter esse nível no JLPT N4.
+  </div>
+)}
 
-            {getWeakestCategory() && (
-              <div
-                style={{
-                  marginTop: 20,
-                  padding: 18,
-                  borderRadius: 16,
-                  background: '#FEF3C7',
-                  color: '#92400E',
-                  textAlign: 'center',
-                  fontSize: 18,
-                  fontWeight: 'bold',
-                }}
-              >
-                📌 Recomendação de estudo:
-                <br />
-                Você precisa melhorar mais em:{' '}
-                {getCategoryLabel(getWeakestCategory()?.category)}
-                <br />
-                Aproveitamento nessa categoria: {getWeakestCategory()?.percent}%
-              </div>
-            )}
+{getWeakestCategory() &&
+  Math.round((correctCount / totalQuestions) * 100) < 100 && (
+    <div
+      style={{
+        marginTop: 20,
+        padding: 18,
+        borderRadius: 16,
+        background: '#FEF3C7',
+        color: '#92400E',
+        textAlign: 'center',
+        fontSize: 18,
+        fontWeight: 'bold',
+      }}
+    >
+      📌 Recomendação de estudo:
+      <br />
+      Você precisa melhorar mais em:{' '}
+      {getCategoryLabel(getWeakestCategory()?.category)}
+      <br />
+      Aproveitamento nessa categoria: {getWeakestCategory()?.percent}%
+    </div>
+  )}
 
             <button
               onClick={() => {
@@ -530,100 +551,106 @@ export default function Home() {
         )}
 
         {question && !finished && (
-          <div style={{ marginTop: 32 }}>
-            <div
-  style={{
-    background: '#1E3A8A',
-    color: 'white',
-    padding: '20px',
-    borderRadius: 20,
-    textAlign: 'center',
-    wordBreak: 'break-word',
-  }}
->
-              
-              <p
-                style={{
-                  display: 'inline-block',
-                  background: '#DBEAFE',
-                  color: '#1E3A8A',
-                  padding: '6px 12px',
-                  borderRadius: 999,
-                  fontSize: 14,
-                  fontWeight: 'bold',
-                  marginBottom: 12,
-                }}
-              >
-                Categoria: {getCategoryLabel(question.category || 'translation')}
-              </p>
+  <div style={{ marginTop: 32 }}>
+    <div
+      style={{
+        background: '#1E3A8A',
+        color: 'white',
+        padding: '16px',
+        borderRadius: 20,
+        textAlign: 'center',
+        wordBreak: 'break-word',
+      }}
+    >
+      <p
+        style={{
+          display: 'inline-block',
+          background: '#DBEAFE',
+          color: '#1E3A8A',
+          padding: '6px 12px',
+          borderRadius: 999,
+          fontSize: 14,
+          fontWeight: 'bold',
+          marginBottom: 12,
+        }}
+      >
+        Categoria: {getCategoryLabel(question.category || 'translation')}
+      </p>
 
-              <p style={{ margin: 0, fontSize: 16 }}>Traduza a frase:</p>
+      <p style={{ margin: 0, fontSize: 16 }}>Traduza a frase:</p>
 
-              <h2
-  style={{
-    fontSize: 'clamp(24px, 7vw, 34px)',
-    marginTop: 12,
-    lineHeight: 1.4,
-  }}
->
-  {question.question_text}
-</h2>
-            </div>
+      <h2
+        style={{
+          fontSize: 'clamp(22px, 6vw, 30px)',
+          marginTop: 12,
+          lineHeight: 1.4,
+        }}
+      >
+        {question.question_text}
+      </h2>
 
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 14,
-                marginTop: 24,
-              }}
-            >
-              {answers.map((a, i) => (
-                <button
-                  key={i}
-                  disabled={answered}
-                  onClick={() => handleAnswer(a)}
-                  style={{
-  padding: '18px 16px',
-  borderRadius: 16,
-  border: '1px solid #d1d5db',
-  cursor: answered ? 'not-allowed' : 'pointer',
-  fontSize: 'clamp(16px, 4.5vw, 18px)',
-  background: '#ffffff',
-  textAlign: 'left',
-  opacity: answered ? 0.6 : 1,
-  pointerEvents: answered ? 'none' : 'auto',
-  lineHeight: 1.4,
-  width: '100%',
-}}
-                >
-                  {String.fromCharCode(65 + i)}. {a.answer_text}
-                </button>
-              ))}
-            </div>
-
-            {feedback && (
-              <div
-                style={{
-                  marginTop: 24,
-                  padding: 20,
-                  borderRadius: 16,
-                  background: feedback.includes('Correto')
-                    ? '#dcfce7'
-                    : '#fee2e2',
-                  color: feedback.includes('Correto') ? '#166534' : '#991b1b',
-                  fontSize: 20,
-                  fontWeight: 'bold',
-                }}
-              >
-                {feedback}
-                <div style={{ marginTop: 10, fontSize: 16 }}>
-                  Tradução correta: {translation}
-                </div>
-              </div>
-            )}
+      {feedback && (
+        <div
+          style={{
+            marginTop: 16,
+            padding: 16,
+            borderRadius: 16,
+            background: feedback.includes('Correto') ? '#dcfce7' : '#fee2e2',
+            color: feedback.includes('Correto') ? '#166534' : '#991b1b',
+            fontSize: 'clamp(16px, 4.5vw, 19px)',
+            fontWeight: 'bold',
+            textAlign: 'center',
+          }}
+        >
+          {feedback}
+          <div style={{ marginTop: 8, fontSize: 'clamp(14px, 4vw, 16px)' }}>
+            Tradução correta: {translation}
           </div>
-        )}
+        </div>
+      )}
+    </div>
+
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 10,
+        marginTop: 20,
+      }}
+    >
+      {answers.map((a, i) => (
+        <button
+          key={i}
+          disabled={answered}
+          onClick={() => handleAnswer(a)}
+          style={{
+            padding: '14px 14px',
+            borderRadius: 16,
+            border: '1px solid #d1d5db',
+            cursor: answered ? 'not-allowed' : 'pointer',
+            fontSize: 'clamp(16px, 4.5vw, 18px)',
+            background: '#ffffff',
+            color: '#111827',
+            WebkitTextFillColor: '#111827',
+            textAlign: 'left',
+            opacity: answered ? 0.75 : 1,
+            pointerEvents: answered ? 'none' : 'auto',
+            lineHeight: 1.4,
+            width: '100%',
+            minHeight: 52,
+            whiteSpace: 'normal',
+            wordBreak: 'break-word',
+            overflowWrap: 'anywhere',
+            appearance: 'none',
+            WebkitAppearance: 'none',
+          }}
+        >
+          {String.fromCharCode(65 + i)}. {a.answer_text}
+        </button>
+      ))}
+    </div>
+  </div>
+)}
       </div>
     </main>
   )
