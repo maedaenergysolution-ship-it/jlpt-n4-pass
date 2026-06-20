@@ -22,6 +22,7 @@ export default function Home() {
   const [totalSimulados, setTotalSimulados] = useState(0)
   const [melhorNota, setMelhorNota] = useState(0)
   const [ultimaNota, setUltimaNota] = useState(0)
+  const [started, setStarted] = useState(false)
 
   useEffect(() => {
     loadQuestion('all', [])
@@ -313,6 +314,7 @@ export default function Home() {
           ))}
         </div>
 
+        {started && (
         <div style={{ marginTop: 24 }}>
           <div
             style={{
@@ -349,6 +351,8 @@ export default function Home() {
             />
           </div>
         </div>
+        )}
+
 
         <div
   style={{
@@ -382,8 +386,91 @@ export default function Home() {
           📊 Histórico: {totalSimulados} simulados | Melhor nota: {melhorNota}% |
           Última nota: {ultimaNota}%
         </div>
+        {!started && (
+  <div
+    style={{
+      marginTop: 32,
+      padding: 24,
+      borderRadius: 24,
+      background: 'linear-gradient(135deg, #1E3A8A, #2563EB)',
+      color: 'white',
+      textAlign: 'center',
+    }}
+  >
+    <h2
+      style={{
+        fontSize: 'clamp(26px, 7vw, 36px)',
+        marginBottom: 12,
+      }}
+    >
+      Comece seu simulado JLPT N4
+    </h2>
 
-        {finished && (
+    <p
+      style={{
+        fontSize: 'clamp(16px, 4.5vw, 19px)',
+        lineHeight: 1.6,
+        marginBottom: 20,
+      }}
+    >
+      Treine japonês com perguntas estilo JLPT N4, explicação em português e
+      resultado no final.
+    </p>
+
+    <div
+      style={{
+        background: 'rgba(255,255,255,0.15)',
+        borderRadius: 18,
+        padding: 18,
+        textAlign: 'left',
+        marginBottom: 24,
+        lineHeight: 1.8,
+        fontSize: 'clamp(15px, 4vw, 17px)',
+      }}
+    >
+      <div>✅ 10 perguntas por simulado</div>
+      <div>✅ Tradução, vocabulário e gramática</div>
+      <div>✅ Resultado com aproveitamento</div>
+      <div>✅ Indicação do ponto que precisa melhorar</div>
+    </div>
+
+    <button
+      onClick={() => {
+        setStarted(true)
+        resetQuiz()
+        setTimeout(() => {
+          loadQuestion(selectedCategory, [])
+        }, 200)
+      }}
+      style={{
+        width: '100%',
+        padding: 18,
+        borderRadius: 18,
+        border: 'none',
+        background: '#22C55E',
+        color: 'white',
+        fontSize: 'clamp(18px, 5vw, 22px)',
+        fontWeight: 'bold',
+        cursor: 'pointer',
+        boxShadow: '0 10px 20px rgba(0,0,0,0.2)',
+      }}
+    >
+      Começar simulado
+    </button>
+
+    <p
+      style={{
+        marginTop: 18,
+        fontSize: 14,
+        opacity: 0.9,
+      }}
+    >
+      Ideal para brasileiros no Japão que querem passar no JLPT N4 🇯🇵
+    </p>
+  </div>
+)}
+
+        {started && finished && (
           <div
             style={{
               marginTop: 32,
@@ -550,7 +637,7 @@ export default function Home() {
           </div>
         )}
 
-        {question && !finished && (
+        {started && question && !finished && (
   <div style={{ marginTop: 32 }}>
     <div
       style={{
