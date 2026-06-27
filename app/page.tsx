@@ -66,6 +66,94 @@ export default function Home() {
     return weakest
   }
 
+  function getPerformanceLevel() {
+  const percentage = Math.round((correctCount / totalQuestions) * 100)
+
+  if (percentage === 100) {
+    return {
+      title: 'Excelente',
+      emoji: '🏆',
+      color: '#166534',
+      background: '#DCFCE7',
+      message:
+        'Você acertou tudo! Continue treinando para manter esse nível até o dia da prova.',
+    }
+  }
+
+  if (percentage >= 80) {
+    return {
+      title: 'Muito bom',
+      emoji: '✅',
+      color: '#166534',
+      background: '#DCFCE7',
+      message:
+        'Você está no caminho certo para passar no JLPT N4. Continue praticando para ganhar velocidade e confiança.',
+    }
+  }
+
+  if (percentage >= 60) {
+    return {
+      title: 'Intermediário',
+      emoji: '⚠️',
+      color: '#92400E',
+      background: '#FEF3C7',
+      message:
+        'Você já tem uma boa base, mas ainda precisa reforçar alguns pontos antes da prova.',
+    }
+  }
+
+  return {
+    title: 'Precisa reforçar',
+    emoji: '📚',
+    color: '#991B1B',
+    background: '#FEE2E2',
+    message:
+      'Ainda é melhor revisar o conteúdo com calma. Treine vocabulário, gramática e traduções todos os dias.',
+  }
+}
+
+function getStudyPlan() {
+  const weakest = getWeakestCategory()
+
+  if (!weakest) {
+    return [
+      'Faça mais um simulado para identificar seus pontos fortes e fracos.',
+      'Revise vocabulário N4 por 15 minutos.',
+      'Treine frases curtas em japonês com tradução em português.',
+    ]
+  }
+
+  if (weakest.category === 'vocabulary') {
+    return [
+      'Revise 20 palavras de vocabulário N4.',
+      'Crie frases simples usando as palavras que errou.',
+      'Faça mais um simulado focando em vocabulário.',
+    ]
+  }
+
+  if (weakest.category === 'grammar') {
+    return [
+      'Revise partículas e estruturas gramaticais N4.',
+      'Leia exemplos curtos em japonês e tente traduzir.',
+      'Faça mais um simulado focando em gramática.',
+    ]
+  }
+
+  if (weakest.category === 'translation') {
+    return [
+      'Treine tradução de frases curtas do japonês para português.',
+      'Observe o verbo, a partícula e o tempo da frase.',
+      'Faça mais um simulado focando em compreensão geral.',
+    ]
+  }
+
+  return [
+    'Revise o conteúdo da categoria com menor aproveitamento.',
+    'Faça anotações dos erros mais comuns.',
+    'Repita o simulado para acompanhar sua evolução.',
+  ]
+}
+
   async function loadHistory() {
     const { data, error } = await supabase
       .from('quiz_results')
@@ -500,32 +588,75 @@ export default function Home() {
               Aproveitamento:{' '}
               {Math.round((correctCount / totalQuestions) * 100)}%
             </p>
+            <div
+  style={{
+    marginTop: 20,
+    padding: 20,
+    borderRadius: 18,
+    background: getPerformanceLevel().background,
+    color: getPerformanceLevel().color,
+    textAlign: 'center',
+    fontWeight: 'bold',
+  }}
+>
+  <div style={{ fontSize: 32 }}>{getPerformanceLevel().emoji}</div>
 
-            {Math.round((correctCount / totalQuestions) * 100) >= 80 && (
-              <p style={{ fontSize: 18, color: '#166534', fontWeight: 'bold' }}>
-                ✅ Muito bom! Você está no caminho certo para passar no JLPT N4.
-              </p>
-            )}
+  <h3 style={{ fontSize: 24, margin: '8px 0' }}>
+    Seu nível atual: {getPerformanceLevel().title}
+  </h3>
 
-            {Math.round((correctCount / totalQuestions) * 100) >= 60 &&
-              Math.round((correctCount / totalQuestions) * 100) < 80 && (
-                <p
-                  style={{
-                    fontSize: 18,
-                    color: '#92400E',
-                    fontWeight: 'bold',
-                  }}
-                >
-                  ⚠️ Quase lá! Continue treinando mais um pouco.
-                </p>
-              )}
+  <p
+    style={{
+      fontSize: 17,
+      lineHeight: 1.6,
+      margin: 0,
+    }}
+  >
+    {getPerformanceLevel().message}
+  </p>
+</div>
 
-            {Math.round((correctCount / totalQuestions) * 100) < 60 && (
-              <p style={{ fontSize: 18, color: '#991B1B', fontWeight: 'bold' }}>
-                📚 Continue estudando! Reforce vocabulário e gramática.
-              </p>
-            )}
+<div
+  style={{
+    marginTop: 20,
+    padding: 20,
+    borderRadius: 18,
+    background: '#ffffff',
+    border: '1px solid #e5e7eb',
+    textAlign: 'left',
+  }}
+>
+  <h3
+    style={{
+      color: '#1E3A8A',
+      fontSize: 22,
+      marginTop: 0,
+      marginBottom: 14,
+      textAlign: 'center',
+    }}
+  >
+    📘 Plano de estudo recomendado
+  </h3>
 
+  {getStudyPlan().map((item, index) => (
+    <div
+      key={index}
+      style={{
+        display: 'flex',
+        gap: 10,
+        marginBottom: 12,
+        fontSize: 16,
+        lineHeight: 1.5,
+        color: '#374151',
+      }}
+    >
+      <strong>{index + 1}.</strong>
+      <span>{item}</span>
+    </div>
+  ))}
+</div>
+
+            
             <div
               style={{
                 marginTop: 24,
