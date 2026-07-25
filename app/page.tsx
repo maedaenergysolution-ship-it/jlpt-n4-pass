@@ -279,6 +279,24 @@ function getStudyPlan() {
     setAnswers(shuffleArray(respostas || []))
   }
 
+  function speakJapanese(text: string) {
+  if (typeof window === 'undefined') return
+
+  if (!('speechSynthesis' in window)) {
+    alert('Seu navegador não suporta áudio automático.')
+    return
+  }
+
+  window.speechSynthesis.cancel()
+
+  const utterance = new SpeechSynthesisUtterance(text)
+  utterance.lang = 'ja-JP'
+  utterance.rate = 0.85
+  utterance.pitch = 1
+
+  window.speechSynthesis.speak(utterance)
+}
+
   function handleAnswer(a: any) {
     if (answeredRef.current) return
 
@@ -806,6 +824,23 @@ function getStudyPlan() {
       >
         {question.question_text}
       </h2>
+
+      <button
+  onClick={() => speakJapanese(question.question_text)}
+  style={{
+    marginTop: 12,
+    padding: '12px 16px',
+    borderRadius: 999,
+    border: 'none',
+    background: '#ffffff',
+    color: '#1E3A8A',
+    fontSize: 16,
+    fontWeight: 'bold',
+    cursor: 'pointer',
+  }}
+>
+  🔊 Ouvir pergunta
+</button>
 
       {feedback && (
         <div
