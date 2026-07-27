@@ -280,6 +280,23 @@ function getStudyPlan() {
   }
 
   function speakJapanese(text: string) {
+   function speakPortuguese(text: string) {
+  if (typeof window === 'undefined') return
+
+  if (!('speechSynthesis' in window)) {
+    alert('Seu navegador não suporta áudio automático.')
+    return
+  }
+
+  window.speechSynthesis.cancel()
+
+  const utterance = new SpeechSynthesisUtterance(text)
+  utterance.lang = 'pt-BR'
+  utterance.rate = 0.95
+  utterance.pitch = 1
+
+  window.speechSynthesis.speak(utterance)
+} 
   if (typeof window === 'undefined') return
 
   if (!('speechSynthesis' in window)) {
@@ -842,25 +859,45 @@ function getStudyPlan() {
   🔊 Ouvir pergunta
 </button>
 
-      {feedback && (
-        <div
-          style={{
-            marginTop: 16,
-            padding: 16,
-            borderRadius: 16,
-            background: feedback.includes('Correto') ? '#dcfce7' : '#fee2e2',
-            color: feedback.includes('Correto') ? '#166534' : '#991b1b',
-            fontSize: 'clamp(16px, 4.5vw, 19px)',
-            fontWeight: 'bold',
-            textAlign: 'center',
-          }}
-        >
-          {feedback}
-          <div style={{ marginTop: 8, fontSize: 'clamp(14px, 4vw, 16px)' }}>
-            Tradução correta: {translation}
-          </div>
-        </div>
-      )}
+  {feedback && (
+  <div
+    style={{
+      marginTop: 16,
+      padding: 16,
+      borderRadius: 16,
+      background: feedback.includes('Correto') ? '#dcfce7' : '#fee2e2',
+      color: feedback.includes('Correto') ? '#166534' : '#991b1b',
+      fontSize: 'clamp(16px, 4.5vw, 19px)',
+      fontWeight: 'bold',
+      textAlign: 'center',
+    }}
+  >
+    {feedback}
+
+    <div style={{ marginTop: 8, fontSize: 'clamp(14px, 4vw, 16px)' }}>
+      Tradução correta: {translation}
+    </div>
+
+    {translation && (
+      <button
+        onClick={() => speakPortuguese(translation)}
+        style={{
+          marginTop: 12,
+          padding: '10px 16px',
+          borderRadius: 999,
+          border: 'none',
+          background: '#ffffff',
+          color: '#1E3A8A',
+          fontSize: 15,
+          fontWeight: 'bold',
+          cursor: 'pointer',
+        }}
+      >
+        🔊 Ouvir resposta correta
+      </button>
+    )}
+  </div>
+)}
     </div>
 
     <div
