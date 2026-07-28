@@ -347,16 +347,18 @@ function getStudyPlan() {
       setTranslation(correct?.answer_text || '')
     }
 
-    setTimeout(() => {
-      if (questionNumber >= totalQuestions) {
-        setFinished(true)
-        saveQuizResult(newCorrectCount, newCategoryStats)
-      } else {
-        setQuestionNumber((prev) => prev + 1)
-        loadQuestion()
-      }
-    }, 1800)
+    
   }
+
+  function goNextQuestion() {
+  if (questionNumber >= totalQuestions) {
+    setFinished(true)
+    saveQuizResult(correctCount, categoryStats)
+  } else {
+    setQuestionNumber((prev) => prev + 1)
+    loadQuestion()
+  }
+}
 
   return (
     <main
@@ -859,7 +861,7 @@ function getStudyPlan() {
   🔊 Ouvir pergunta
 </button>
 
-  {feedback && (
+ {feedback && (
   <div
     style={{
       marginTop: 16,
@@ -872,7 +874,7 @@ function getStudyPlan() {
       textAlign: 'center',
     }}
   >
-    {feedback}
+    <div>{feedback}</div>
 
     <div style={{ marginTop: 8, fontSize: 'clamp(14px, 4vw, 16px)' }}>
       Tradução correta: {translation}
@@ -882,8 +884,8 @@ function getStudyPlan() {
       <button
         onClick={() => speakPortuguese(translation)}
         style={{
-          marginTop: 12,
-          padding: '10px 16px',
+          marginTop: 14,
+          padding: '12px 16px',
           borderRadius: 999,
           border: 'none',
           background: '#ffffff',
@@ -891,13 +893,32 @@ function getStudyPlan() {
           fontSize: 15,
           fontWeight: 'bold',
           cursor: 'pointer',
+          width: '100%',
         }}
       >
         🔊 Ouvir resposta correta
       </button>
     )}
+
+    <button
+      onClick={goNextQuestion}
+      style={{
+        marginTop: 12,
+        padding: '12px 18px',
+        borderRadius: 999,
+        border: 'none',
+        background: '#1E3A8A',
+        color: '#ffffff',
+        fontSize: 16,
+        fontWeight: 'bold',
+        cursor: 'pointer',
+        width: '100%',
+      }}
+    >
+      {questionNumber >= totalQuestions ? 'Ver resultado' : 'Próxima pergunta'}
+    </button>
   </div>
-)}
+)} 
     </div>
 
     <div
