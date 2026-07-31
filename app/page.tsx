@@ -318,6 +318,44 @@ function getStudyPlan() {
   }, 100)
 }
 
+function speakJapanese(text: string) {
+  if (typeof window === 'undefined') return
+
+  if (!('speechSynthesis' in window)) {
+    alert('Seu navegador não suporta áudio automático.')
+    return
+  }
+
+  const synth = window.speechSynthesis
+
+  synth.cancel()
+  synth.resume()
+
+  const utterance = new SpeechSynthesisUtterance(text)
+
+  const voices = synth.getVoices()
+
+  const japaneseVoice =
+    voices.find((voice) => voice.lang === 'ja-JP') ||
+    voices.find((voice) => voice.lang.startsWith('ja')) ||
+    null
+
+  if (japaneseVoice) {
+    utterance.voice = japaneseVoice
+    utterance.lang = japaneseVoice.lang
+  } else {
+    utterance.lang = 'ja-JP'
+  }
+
+  utterance.rate = 0.85
+  utterance.pitch = 1
+  utterance.volume = 1
+
+  setTimeout(() => {
+    synth.speak(utterance)
+  }, 100)
+}
+
   function handleAnswer(a: any) {
     if (answeredRef.current) return
 
