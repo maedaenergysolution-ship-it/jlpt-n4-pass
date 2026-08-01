@@ -10,6 +10,7 @@ export default function Home() {
   const [wrongCount, setWrongCount] = useState(0)
   const [feedback, setFeedback] = useState('')
   const [translation, setTranslation] = useState('')
+  const [answerAudioText, setAnswerAudioText] = useState('')
   const [questionNumber, setQuestionNumber] = useState(1)
   const totalQuestions = 10
   const [finished, setFinished] = useState(false)
@@ -211,6 +212,7 @@ function getStudyPlan() {
     setFinished(false)
     setFeedback('')
     setTranslation('')
+    setAnswerAudioText('')
     setAnswers([])
     setQuestion(null)
     setAnswered(false)
@@ -223,6 +225,7 @@ function getStudyPlan() {
   ) {
     setFeedback('')
     setTranslation('')
+    setAnswerAudioText('')
     setAnswered(false)
     answeredRef.current = false
 
@@ -338,6 +341,41 @@ function speakPortuguese(text: string) {
   speakText(text, 'pt-BR')
 } 
 
+function speakTextAuto(text: string) {
+  if (typeof window === 'undefined') return
+
+  if (!text) {
+    alert('Não há texto para ouvir.')
+    return
+  }
+
+  if (!('speechSynthesis' in window)) {
+    alert('Seu navegador não suporta áudio automático.')
+    return
+  }
+
+  const synth = window.speechSynthesis
+
+  synth.cancel()
+
+  const hasJapanese = /[\u3040-\u30ff\u3400-\u9fff]/.test(text)
+
+  const utterance = new SpeechSynthesisUtterance(text)
+
+  if (hasJapanese) {
+    utterance.lang = 'ja-JP'
+    utterance.rate = 0.85
+  } else {
+    utterance.lang = 'pt-BR'
+    utterance.rate = 0.95
+  }
+
+  utterance.pitch = 1
+  utterance.volume = 1
+
+  synth.speak(utterance)
+}
+
   function handleAnswer(a: any) {
     if (answeredRef.current) return
 
@@ -360,19 +398,35 @@ function speakPortuguese(text: string) {
     const newCorrectCount = correctCount + (a.is_correct ? 1 : 0)
     const newWrongCount = wrongCount + (a.is_correct ? 0 : 1)
 
-    if (a.is_correct) {
-      setCorrectCount(newCorrectCount)
-      setFeedback('✅ Correto!')
-      setTranslation(a.answer_text)
-    } else {
-      setWrongCount(newWrongCount)
-      setFeedback('❌ Errado!')
-      const correct = answers.find((ans) => ans.is_correct)
-      setTranslation(correct?.answer_text || '')
-    }
+    const correct = answers.find((ans) => ans.is_correct)
+const correctText = correct?.answer_text || a.answer_text
+
+if (a.is_correct) {
+  setCorrectCount(newCorrectCount)
+  setFeedback('✅ Correto!')
+  setTranslation(a.answer_text)
+  setAnswerAudioText(a.answer_text)
+} else {
+  setWrongCount(newWrongCount)
+  setFeedback('❌ Errado!')
+  setTranslation(correctText)
+  setAnswerAudioText(correctText)
+}
 
     
   }
+
+  function speakCorrectAnswer() {
+  const correct = answers.find((ans) => ans.is_correct)
+  const textToSpeak = correct?.answer_text || translation
+
+  if (!textToSpeak) {
+    alert('Não encontrei a resposta correta para ouvir.')
+    return
+  }
+
+  speakTextAuto(textToSpeak)
+}
 
   function goNextQuestion() {
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
@@ -872,7 +926,7 @@ function speakPortuguese(text: string) {
       </h2>
 
       <button
-  onClick={() => speakJapanese(question.question_text)}
+  onClick={() => speakTextAuto(question.question_text)}
   style={{
     marginTop: 12,
     padding: '12px 16px',
@@ -907,9 +961,9 @@ function speakPortuguese(text: string) {
       Tradução correta: {translation}
     </div>
 
-    {translation && (
+    {answerAudioText && (
       <button
-       onClick={() => speakPortuguese(translation || 'Resposta correta não encontrada')}
+       onClick={() => speakTextAuto(answerAudioText)}
         style={{
           marginTop: 14,
           padding: '12px 16px',
@@ -926,6 +980,24 @@ function speakPortuguese(text: string) {
         🔊 Ouvir resposta correta
       </button>
     )}
+
+    <button
+  onClick={() => speakTextAuto('日本語を勉強しています')}
+  style={{
+    marginTop: 12,
+    padding: '12px 16px',
+    borderRadius: 999,
+    border: 'none',
+    background: '#22C55E',
+    color: '#ffffff',
+    fontSize: 15,
+    fontWeight: 'bold',
+    cursor: 'pointer',
+    width: '100%',
+  }}
+>
+  🔊 Teste áudio japonês
+</button>
 
     <button
       onClick={goNextQuestion}
