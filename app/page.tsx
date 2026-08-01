@@ -279,8 +279,13 @@ function getStudyPlan() {
     setAnswers(shuffleArray(respostas || []))
   }
 
-  function speakPortuguese(text: string) {
+   function speakText(text: string, preferredLang: string) {
   if (typeof window === 'undefined') return
+
+  if (!text) {
+    alert('Não há texto para ouvir.')
+    return
+  }
 
   if (!('speechSynthesis' in window)) {
     alert('Seu navegador não suporta áudio automático.')
@@ -289,72 +294,49 @@ function getStudyPlan() {
 
   const synth = window.speechSynthesis
 
-  synth.cancel()
-  synth.resume()
+  const startSpeaking = () => {
+    synth.cancel()
+    synth.resume()
 
-  const utterance = new SpeechSynthesisUtterance(text)
+    const utterance = new SpeechSynthesisUtterance(text)
+    const voices = synth.getVoices()
 
-  const voices = synth.getVoices()
+    const exactVoice = voices.find((voice) => voice.lang === preferredLang)
+    const similarVoice = voices.find((voice) =>
+      voice.lang.startsWith(preferredLang.split('-')[0])
+    )
 
-  const portugueseVoice =
-    voices.find((voice) => voice.lang === 'pt-BR') ||
-    voices.find((voice) => voice.lang.startsWith('pt')) ||
-    voices.find((voice) => voice.lang.startsWith('en')) ||
-    null
+    const selectedVoice = exactVoice || similarVoice || null
 
-  if (portugueseVoice) {
-    utterance.voice = portugueseVoice
-    utterance.lang = portugueseVoice.lang
-  } else {
-    utterance.lang = 'pt-BR'
+    if (selectedVoice) {
+      utterance.voice = selectedVoice
+      utterance.lang = selectedVoice.lang
+    } else {
+      utterance.lang = preferredLang
+    }
+
+    utterance.rate = preferredLang.startsWith('ja') ? 0.85 : 0.9
+    utterance.pitch = 1
+    utterance.volume = 1
+
+    synth.speak(utterance)
   }
 
-  utterance.rate = 0.9
-  utterance.pitch = 1
-  utterance.volume = 1
-
-  setTimeout(() => {
-    synth.speak(utterance)
-  }, 100)
+  if (synth.getVoices().length === 0) {
+    synth.onvoiceschanged = startSpeaking
+    setTimeout(startSpeaking, 300)
+  } else {
+    startSpeaking()
+  }
 }
 
 function speakJapanese(text: string) {
-  if (typeof window === 'undefined') return
-
-  if (!('speechSynthesis' in window)) {
-    alert('Seu navegador não suporta áudio automático.')
-    return
-  }
-
-  const synth = window.speechSynthesis
-
-  synth.cancel()
-  synth.resume()
-
-  const utterance = new SpeechSynthesisUtterance(text)
-
-  const voices = synth.getVoices()
-
-  const japaneseVoice =
-    voices.find((voice) => voice.lang === 'ja-JP') ||
-    voices.find((voice) => voice.lang.startsWith('ja')) ||
-    null
-
-  if (japaneseVoice) {
-    utterance.voice = japaneseVoice
-    utterance.lang = japaneseVoice.lang
-  } else {
-    utterance.lang = 'ja-JP'
-  }
-
-  utterance.rate = 0.85
-  utterance.pitch = 1
-  utterance.volume = 1
-
-  setTimeout(() => {
-    synth.speak(utterance)
-  }, 100)
+  speakText(text, 'ja-JP')
 }
+
+function speakPortuguese(text: string) {
+  speakText(text, 'pt-BR')
+} 
 
   function handleAnswer(a: any) {
     if (answeredRef.current) return
@@ -393,6 +375,9 @@ function speakJapanese(text: string) {
   }
 
   function goNextQuestion() {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+  window.speechSynthesis.cancel()
+}
   if (questionNumber >= totalQuestions) {
     setFinished(true)
     saveQuizResult(correctCount, categoryStats)
@@ -924,7 +909,7 @@ function speakJapanese(text: string) {
 
     {translation && (
       <button
-        onClick={() => speakPortuguese(translation)}
+       onClick={() => speakPortuguese(translation || 'Resposta correta não encontrada')}
         style={{
           marginTop: 14,
           padding: '12px 16px',
