@@ -981,24 +981,7 @@ if (a.is_correct) {
       </button>
     )}
 
-    <button
-  onClick={() => speakTextAuto('日本語を勉強しています')}
-  style={{
-    marginTop: 12,
-    padding: '12px 16px',
-    borderRadius: 999,
-    border: 'none',
-    background: '#22C55E',
-    color: '#ffffff',
-    fontSize: 15,
-    fontWeight: 'bold',
-    cursor: 'pointer',
-    width: '100%',
-  }}
->
-  🔊 Teste áudio japonês
-</button>
-
+  
     <button
       onClick={goNextQuestion}
       style={{
