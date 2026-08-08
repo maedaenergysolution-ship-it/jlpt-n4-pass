@@ -16,6 +16,7 @@ export default function Home() {
   const [finished, setFinished] = useState(false)
   const [usedQuestionIds, setUsedQuestionIds] = useState<number[]>([])
   const [selectedCategory, setSelectedCategory] = useState('all')
+  const [selectedLevel, setSelectedLevel] = useState('N4')
   const [categoryStats, setCategoryStats] = useState<any>({})
   const [answered, setAnswered] = useState(false)
   const answeredRef = useRef(false)
@@ -26,9 +27,9 @@ export default function Home() {
   const [started, setStarted] = useState(false)
 
   useEffect(() => {
-    loadQuestion('all', [])
-    loadHistory()
-  }, [])
+  loadQuestion('all', [], 'N4')
+  loadHistory()
+}, [])
 
   function getCategoryLabel(category: string) {
     if (category === 'translation') return 'Tradução'
@@ -221,8 +222,9 @@ function getStudyPlan() {
 
   async function loadQuestion(
     categoryValue = selectedCategory,
-    usedIds = usedQuestionIds
-  ) {
+    usedIds = usedQuestionIds,
+    levelValue = selectedLevel
+   ) {
     setFeedback('')
     setTranslation('')
     setAnswerAudioText('')
@@ -230,6 +232,7 @@ function getStudyPlan() {
     answeredRef.current = false
 
     let query = supabase.from('questions').select('*')
+    query = query.eq('level', levelValue)
 
     if (categoryValue !== 'all') {
       query = query.eq('category', categoryValue)
@@ -472,12 +475,53 @@ if (a.is_correct) {
     marginBottom: 8,
   }}
 >
-  JLPT N4 PASS 🇯🇵
+  JLPT PASS 🇯🇵
 </h1>
 
         <p style={{ textAlign: 'center', color: '#6b7280' }}>
-          Treine japonês com questões estilo JLPT N4
+          Treine japonês com questões estilo JLPT {selectedLevel}
         </p>
+
+        <div
+  style={{
+    display: 'flex',
+    gap: 10,
+    justifyContent: 'center',
+    flexWrap: 'wrap',
+    marginTop: 24,
+  }}
+>
+  {[
+    { label: 'N4', value: 'N4' },
+    { label: 'N3', value: 'N3' },
+  ].map((level) => (
+    <button
+      key={level.value}
+      onClick={() => {
+        setSelectedLevel(level.value)
+        resetQuiz()
+        setStarted(false)
+        setTimeout(() => {
+          loadQuestion(selectedCategory, [], level.value)
+        }, 200)
+      }}
+      style={{
+        padding: '12px 22px',
+        borderRadius: 999,
+        border: '1px solid #22C55E',
+        background:
+          selectedLevel === level.value ? '#22C55E' : '#ffffff',
+        color:
+          selectedLevel === level.value ? '#ffffff' : '#166534',
+        cursor: 'pointer',
+        fontWeight: 'bold',
+        fontSize: 16,
+      }}
+    >
+      JLPT {level.label}
+    </button>
+  ))}
+</div>
 
         <div
           style={{
@@ -645,7 +689,7 @@ if (a.is_correct) {
         setStarted(true)
         resetQuiz()
         setTimeout(() => {
-          loadQuestion(selectedCategory, [])
+          loadQuestion(selectedCategory, [], selectedLevel)
         }, 200)
       }}
       style={{
@@ -867,7 +911,7 @@ if (a.is_correct) {
               onClick={() => {
                 resetQuiz()
                 setTimeout(() => {
-                  loadQuestion(selectedCategory, [])
+                  loadQuestion(selectedCategory, [], selectedLevel)
                 }, 200)
               }}
               style={{
